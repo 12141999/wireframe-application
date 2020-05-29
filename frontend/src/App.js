@@ -2,56 +2,28 @@ import React, { Component } from 'react';
 import 'font-awesome/css/font-awesome.min.css';
 import axios from 'axios';
 import './App.css';
+import {connect} from 'react-redux';
+import * as actionCreators from './actions/action.js';
 
 class App extends Component {
 
   constructor(props) {
     super(props);
-
-    // this.onFileChange = this.onFileChange.bind(this);
-
-    this.state = {
-      employeeDropdown: [],
-      employeeSurvey: {}
-    }
   }
 
 
   componentDidMount() {
 
-    axios.get("http://localhost:4000/getAllEmpDetails").then((res) => {
-      this.setState({ employeeDropdown: res.data });
-
-    }).catch((e) => {
-      // self.setState({ responseStatus: 200, loading: false });
-      console.log("err is occured", e);
-    })
+    const {loadEmpDropdown} = this.props;
+    loadEmpDropdown();   
 
   }
 
   getSurveyData(empName) {
 
-    let formData = new FormData();
+    const {getSurveyData} = this.props;
+    getSurveyData(empName);
 
-    let entries = formData.entries();
-    for (let pair of entries) {
-      formData.delete(pair[0]);
-    }
-
-    formData.append('emp', empName);
-
-    axios.post("http://localhost:4000/getEmpDetails", formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    }
-    ).then((res) => {
-      ;
-      console.log("get survey data", res.data[0]);
-      this.setState({ employeeSurvey : res.data[0] });
-    }).catch((e) => {
-      console.log("err is occured", e);
-    })
   }
 
   addSuvey(surveyName , empName){
@@ -78,6 +50,9 @@ class App extends Component {
     }).catch((e) => {
       console.log("err is occured", e);
     })
+
+    // const {addSuvey} = this.props;
+    // addSuvey(surveyName , empName);
 
 
   }
@@ -107,6 +82,9 @@ class App extends Component {
       console.log("err is occured", e);
     })
 
+    // const {removeSurvey} = this.props;
+    // removeSurvey(surveyName , empName);
+
 
   }
 
@@ -133,14 +111,17 @@ class App extends Component {
       console.log("err is occured", e);
     })
 
+    // const {onsubmit} = this.props;
+    // onsubmit(data);
+
   }
 
 
   render() {
 
     let dropdown = '';
-    if (this.state.employeeDropdown) {
-      dropdown = this.state.employeeDropdown.map((i, index) => {
+    if (this.props.employeeDropdown) {
+      dropdown = this.props.employeeDropdown.map((i, index) => {
         return (
           <a href="#" key={index} onClick={() => this.getSurveyData(i.name)} className="dropdown-item">
             {i.name}
@@ -150,22 +131,22 @@ class App extends Component {
     }
 
     let survey = '';
-    if (this.state.employeeSurvey.survey) {
-      survey = this.state.employeeSurvey.survey.map((i,index) => {
+    if (this.props.employeeSurvey.survey) {
+      survey = this.props.employeeSurvey.survey.map((i,index) => {
         return (
           <div>
-          <p key={index}>{i}<button onClick={() => this.addSuvey(i,this.state.employeeSurvey.name)} className="button is-info is-light">Add</button></p><br></br>
+          <p key={index}>{i}<button onClick={() => this.addSuvey(i,this.props.employeeSurvey.name)} className="button is-info is-light">Add</button></p><br></br>
           </div>
         )
       })
     }
 
     let assignedSurvey = '';
-    if (this.state.employeeSurvey.assignedSurvey) {
-      assignedSurvey = this.state.employeeSurvey.assignedSurvey.map((i,index) => {
+    if (this.props.employeeSurvey.assignedSurvey) {
+      assignedSurvey = this.props.employeeSurvey.assignedSurvey.map((i,index) => {
         return (
           <div>
-          <p key={index}>{i}<button onClick={() => this.removeSurvey(i,this.state.employeeSurvey.name)} className="button is-info is-light">Remove</button></p><br></br>
+          <p key={index}>{i}<button onClick={() => this.removeSurvey(i,this.props.employeeSurvey.name)} className="button is-info is-light">Remove</button></p><br></br>
           </div>
         )
       })
@@ -210,7 +191,7 @@ class App extends Component {
           </div>
         </div>
 
-        <button onClick={() => this.onsubmit(this.state.employeeSurvey)} className="button is-success">Done</button>
+        <button onClick={() => this.onsubmit(this.props.employeeSurvey)} className="button is-success">Done</button>
 
 
       </div>
@@ -221,5 +202,13 @@ class App extends Component {
   }
 }
 
+const mapStateToProps = (state) => {
+  return state;
+}
 
-export default App;
+// const mapDispatchToProps = dispatch => bindActionCreators({
+//   fetchProducts: fetchProductsAction
+// }, dispatch)
+
+
+export default connect(mapStateToProps , actionCreators)(App);
